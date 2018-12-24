@@ -1,16 +1,24 @@
 package akka.samples
 
-import java.lang
 
 import akka.actor.SupervisorStrategy.{Escalate, Restart, Resume, Stop}
 import akka.actor.{Actor, ActorRef, ActorSystem, AllForOneStrategy, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
 import akka.testkit.{EventFilter, ImplicitSender, TestKit}
 import org.scalatest.{BeforeAndAfterAll, WordSpecLike}
 
+/**
+  * The test suite for supervision stratgey
+  *
+  */
 
 object SupervisionTest {
 
+  /**
+    * The test actor class
+    */
+
   class Supervisor extends Actor {
+    //override the supervisor strategy with actions for each failures.
     override val supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
       case _: NullPointerException => Restart
       case _: IllegalArgumentException => Stop
@@ -25,14 +33,23 @@ object SupervisionTest {
     }
   }
 
+  /**
+    * Report message object to get the result
+    */
   case object Report
 
+  /**
+    * Used for testing the child behaviour on its failure
+    */
   class NoDeathOnRestartSupervisor extends Supervisor {
     override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
-
+      // doesn't do anything
     }
   }
 
+  /**
+    *
+    */
   class AllForOneSupervisor extends Supervisor {
     override val supervisorStrategy = AllForOneStrategy() {
       case _: NullPointerException => Restart
@@ -42,6 +59,9 @@ object SupervisionTest {
     }
   }
 
+  /**
+    * Test class for the word counting and exception handling
+    */
 
   class WordCounter extends Actor {
     var words = 0
@@ -60,6 +80,9 @@ object SupervisionTest {
 
 }
 
+/**
+  * Test suite class
+  */
 class SupervisionTest
   extends TestKit(ActorSystem("SuperVisionTest"))
     with ImplicitSender
