@@ -54,7 +54,7 @@ object WordCount extends App {
     }
 
     /**
-      *
+      * The Receive method used to ro
       * @param childrenRefs
       * @param currentChildIndex
       * @param currentTaskId
@@ -66,7 +66,7 @@ object WordCount extends App {
                      currentTaskId: Int,
                      requestmap: Map[Int, ActorRef]): Receive = {
       case text: String =>
-        println(s"[master] i have received : $text - I will send it to child $currentChildIndex")
+        println(s"[master] have received : $text - Sending it to child $currentChildIndex")
         val originalSender = sender()
         val task = WordCountTask(currentTaskId, text)
         val childRef = childrenRefs(currentChildIndex)
@@ -76,7 +76,7 @@ object WordCount extends App {
         val newRequestMap = requestmap + (currentTaskId -> originalSender)
         context.become(withChildren(childrenRefs, nextChildIndex, newTaskId, newRequestMap))
       case WordCountReply(id, count) =>
-        println(s"[master] I have received a reply for the task id $id with $count")
+        println(s"[master] received a reply for the task id $id with $count")
         val originalSender = requestmap(id)
         originalSender ! count
         context.become(withChildren(childrenRefs, currentChildIndex, currentTaskId, requestmap - id))
@@ -110,7 +110,7 @@ object WordCount extends App {
       case "go" =>
         val master = context.actorOf(Props[WordCountMaster], "master")
         master ! Initialize(3)
-        val texts = List("I love Akka", "I love Scala", "yes", "me too")
+        val texts = List("I love Akka", "I love Scala", "Java is great", "Linux is awesome")
         texts.foreach(t => master ! t)
       case count: Int =>
         println(s"[test actor] I received a reply : $count")
